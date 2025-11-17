@@ -18,8 +18,7 @@
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-base": "^0.9.23",
-    "@solana/wallet-adapter-phantom": "^0.9.28",
-    "@solana/wallet-adapter-solflare": "^0.6.32",
+    "@solana/wallet-adapter-wallets": "^0.19.26",
     "@solana/web3.js": "^1.91.4",
     "@solana/spl-token": "^0.4.6",
     "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
@@ -30,5 +29,8 @@
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+  },
+  "overrides": {
+    "usb": "npm:empty-npm-package@1.0.0"
   }
 }
