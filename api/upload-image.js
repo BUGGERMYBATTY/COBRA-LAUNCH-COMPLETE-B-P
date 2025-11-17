@@ -1,6 +1,7 @@
 // Image upload endpoint for Vercel serverless function
 import FormData from 'form-data';
 import axios from 'axios';
+import Busboy from 'busboy';
 
 // Disable body parsing so we can manually parse multipart data
 export const config = {
@@ -43,62 +44,50 @@ function generateFileName(originalFileName, tokenName, tokenSymbol) {
     return filename;
 }
 
-// Parse multipart form data manually
-async function parseMultipartForm(req) {
+// Parse multipart form data using busboy
+function parseMultipartForm(req) {
     return new Promise((resolve, reject) => {
-        const boundary = req.headers['content-type']?.split('boundary=')[1];
-        if (!boundary) {
-            reject(new Error('No boundary found in content-type'));
-            return;
-        }
+        const busboy = Busboy({ headers: req.headers });
+        const fields = {};
+        let fileData = null;
 
-        const chunks = [];
-        req.on('data', chunk => chunks.push(chunk));
-        req.on('end', () => {
-            try {
+        busboy.on('file', (fieldname, file, info) => {
+            const { filename, mimeType } = info;
+            const chunks = [];
+
+            console.log(`Receiving file: ${filename}, mime: ${mimeType}`);
+
+            file.on('data', (chunk) => {
+                chunks.push(chunk);
+            });
+
+            file.on('end', () => {
                 const buffer = Buffer.concat(chunks);
-                const parts = buffer.toString('binary').split(`--${boundary}`);
-
-                const fields = {};
-                let fileBuffer = null;
-                let fileName = '';
-                let mimeType = '';
-
-                for (const part of parts) {
-                    if (part.includes('Content-Disposition')) {
-                        const nameMatch = part.match(/name="([^"]+)"/);
-                        if (!nameMatch) continue;
-
-                        const fieldName = nameMatch[1];
-
-                        if (part.includes('filename=')) {
-                            // This is a file
-                            const fileNameMatch = part.match(/filename="([^"]+)"/);
-                            const contentTypeMatch = part.match(/Content-Type: ([^\r\n]+)/);
-
-                            fileName = fileNameMatch ? fileNameMatch[1] : 'file';
-                            mimeType = contentTypeMatch ? contentTypeMatch[1].trim() : 'application/octet-stream';
-
-                            // Extract file data (after double CRLF)
-                            const dataStart = part.indexOf('\r\n\r\n') + 4;
-                            const dataEnd = part.lastIndexOf('\r\n');
-                            const binaryData = part.substring(dataStart, dataEnd);
-                            fileBuffer = Buffer.from(binaryData, 'binary');
-                        } else {
-                            // This is a text field
-                            const valueStart = part.indexOf('\r\n\r\n') + 4;
-                            const valueEnd = part.lastIndexOf('\r\n');
-                            fields[fieldName] = part.substring(valueStart, valueEnd);
-                        }
-                    }
-                }
-
-                resolve({ fields, file: fileBuffer ? { buffer: fileBuffer, originalFilename: fileName, mimetype: mimeType } : null });
-            } catch (error) {
-                reject(error);
-            }
+                console.log(`File received: ${buffer.length} bytes`);
+                fileData = {
+                    buffer,
+                    originalFilename: filename,
+                    mimetype: mimeType
+                };
+            });
         });
-        req.on('error', reject);
+
+        busboy.on('field', (fieldname, value) => {
+            console.log(`Field received: ${fieldname} = ${value}`);
+            fields[fieldname] = value;
+        });
+
+        busboy.on('finish', () => {
+            console.log('Busboy finished parsing');
+            resolve({ fields, file: fileData });
+        });
+
+        busboy.on('error', (error) => {
+            console.error('Busboy error:', error);
+            reject(error);
+        });
+
+        req.pipe(busboy);
     });
 }
 
@@ -127,6 +116,7 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('Starting multipart parse...');
         const { fields, file } = await parseMultipartForm(req);
 
         console.log('Parsed form data:', {
