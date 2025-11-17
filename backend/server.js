@@ -14,24 +14,40 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3001;
+const PORT = process.env.PORT || process.env.BACKEND_PORT || 3001;
 
 // Configure multer for file uploads (in-memory storage)
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware - CORS Configuration
 const corsOptions = {
-    origin: [
-        'https://randygarsh.com',
-        'https://www.randygarsh.com',
-        'http://localhost:5173',
-        'http://localhost:3000'
-    ],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        const allowedOrigins = [
+            'https://randygarsh.com',
+            'https://www.randygarsh.com',
+            'http://localhost:5173',
+            'http://localhost:3000'
+        ];
+
+        // Allow Railway domains and any origin ending with .railway.app or .up.railway.app
+        if (origin.includes('.railway.app') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all for now - you can tighten this later
+        }
+    },
     credentials: true,
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Serve static files from the dist folder (frontend build)
+const distPath = join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
 
 // Security: Ensure JWT is configured
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
@@ -323,6 +339,11 @@ app.post('/api/create-liquidity', async (req, res) => {
             error: error.message || 'Failed to create liquidity pool transaction'
         });
     }
+});
+
+// Serve frontend for all other routes (SPA fallback)
+app.get('*', (req, res) => {
+    res.sendFile(join(distPath, 'index.html'));
 });
 
 // Start server
