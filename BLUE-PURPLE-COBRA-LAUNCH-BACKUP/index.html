@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafkreigttkgw4zzl6ncop3fhdzaupukfnebd4t3jcg3agp3bq5fbiabiim" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cobra Launch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200;300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@solana/wallet-adapter-react-ui@latest/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Roboto', 'sans-serif'],
+              header: ['Oxanium', 'sans-serif'],
+              body: ['Roboto', 'sans-serif'],
+            },
+            colors: {
+              'brand-bg': '#111111',
+              'brand-surface': '#1E1E1E',
+              'brand-bg-transparent': 'rgba(17, 17, 17, 0.65)',
+              'brand-bg-transparent-hover': 'rgba(17, 17, 17, 0.75)',
+              'brand-surface-transparent': 'rgba(30, 30, 30, 0.65)',
+              'brand-accent': '#D946EF',
+              'brand-accent-hover': '#E040FB',
+              'brand-text': '#F5F5F5',
+              'brand-text-secondary': '#F5F5F5',
+              'brand-border': '#333333',
+              'neon-purple': {
+                DEFAULT: '#D946EF',
+                light: '#F0ABFC',
+                dark: '#BF40BF',
+                bright: '#E040FB',
+                hot: '#DA70D6'
+              }
+            },
+            boxShadow: {
+              'glow-purple': '0 0 10px rgba(217, 70, 239, 0.8), 0 0 20px rgba(217, 70, 239, 0.6), 0 0 30px rgba(217, 70, 239, 0.4), 0 0 40px rgba(217, 70, 239, 0.2)',
+              'glow-purple-intense': '0 0 15px rgba(224, 64, 251, 1), 0 0 30px rgba(224, 64, 251, 0.8), 0 0 45px rgba(224, 64, 251, 0.6), 0 0 60px rgba(224, 64, 251, 0.4)',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Font System: Oxanium for headers, Roboto for body */
+      h1, h2, h3, h4, h5, h6,
+      button,
+      .btn,
+      nav,
+      .wallet-adapter-button,
+      .wallet-adapter-modal-title {
+        font-family: 'Oxanium', sans-serif !important;
+      }
+
+      body,
+      p,
+      label,
+      input,
+      textarea,
+      select,
+      .body-text {
+        font-family: 'Roboto', sans-serif !important;
+      }
+
+      /* Header weights */
+      h1 { font-weight: 700; }
+      h2 { font-weight: 600; }
+      h3, h4, h5, h6 { font-weight: 500; }
+
+      /* Body weights */
+      p { font-weight: 400; }
+      label { font-weight: 500; }
+
+      body {
+        background-image: url('https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeiexvelli2tufpz555uihh7waasltimkijdmwucyrf6iuc3m5strqi');
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+      /* NEON PURPLE CYBERPUNK BUTTONS - BLACK WITH PURPLE GLOW */
+      .wallet-adapter-button {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
+        border-radius: 0.5rem !important;
+        border: 2px solid #D946EF !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.8),
+          0 0 20px rgba(217, 70, 239, 0.6),
+          0 0 30px rgba(217, 70, 239, 0.4) !important;
+        transition: all 0.3s ease !important;
+      }
+      .wallet-adapter-button:hover {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%) !important;
+        box-shadow:
+          0 0 15px rgba(224, 64, 251, 1),
+          0 0 30px rgba(224, 64, 251, 0.8),
+          0 0 45px rgba(224, 64, 251, 0.6),
+          0 0 60px rgba(224, 64, 251, 0.4) !important;
+        transform: translateY(-2px) !important;
+      }
+      .wallet-adapter-button-trigger {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+        color: #FFFFFF !important;
+        border: 2px solid #D946EF !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.6),
+          0 0 20px rgba(217, 70, 239, 0.4) !important;
+      }
+       .wallet-adapter-button-trigger:hover {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%) !important;
+        border-color: #E040FB !important;
+        box-shadow:
+          0 0 15px rgba(217, 70, 239, 0.8),
+          0 0 30px rgba(217, 70, 239, 0.6) !important;
+       }
+      .wallet-adapter-modal-wrapper {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+      }
+      .wallet-adapter-modal-container {
+        background: #1E1E1E !important;
+        border-radius: 1rem !important;
+        border: 1px solid rgba(217, 70, 239, 0.6) !important;
+        box-shadow:
+          0 0 20px rgba(217, 70, 239, 0.5),
+          0 0 40px rgba(217, 70, 239, 0.3) !important;
+      }
+      .wallet-adapter-dropdown {
+        background-color: rgba(30, 30, 30, 0.65) !important;
+        border-radius: 1rem !important;
+        border: 1px solid #333333 !important;
+        box-shadow:
+          0 0 20px rgba(217, 70, 239, 0.5),
+          0 0 40px rgba(217, 70, 239, 0.3) !important;
+      }
+      .wallet-adapter-modal-title {
+        color: #F5F5F5 !important;
+      }
+      .wallet-adapter-modal-list .wallet-adapter-button {
+        background: rgba(17, 17, 17, 0.65) !important;
+        border: 1px solid #333333 !important;
+        margin-bottom: 12px !important;
+      }
+      .wallet-adapter-modal-list .wallet-adapter-button:last-child {
+        margin-bottom: 0 !important;
+      }
+      .wallet-adapter-modal-list .wallet-adapter-button:hover {
+        background: rgba(17, 17, 17, 0.75) !important;
+        border-color: #D946EF !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.6),
+          0 0 20px rgba(217, 70, 239, 0.4) !important;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@solana/wallet-adapter-react": "https://aistudiocdn.com/@solana/wallet-adapter-react@^0.15.35",
+    "@solana/wallet-adapter-react-ui": "https://aistudiocdn.com/@solana/wallet-adapter-react-ui@^0.9.35",
+    "@solana/wallet-adapter-base": "https://aistudiocdn.com/@solana/wallet-adapter-base@^0.9.23",
+    "@solana/wallet-adapter-wallets": "https://aistudiocdn.com/@solana/wallet-adapter-wallets@^0.19.26",
+    "@solana/web3.js": "https://aistudiocdn.com/@solana/web3.js@^1.91.4",
+    "@solana/spl-token": "https://aistudiocdn.com/@solana/spl-token@^0.4.6",
+    "@metaplex-foundation/mpl-token-metadata": "https://aistudiocdn.com/@metaplex-foundation/mpl-token-metadata@^2.13.0",
+    "buffer/": "https://aistudiocdn.com/buffer@^6.0.3/",
+    "buffer": "https://aistudiocdn.com/buffer@^6.0.3"
+  }
+}
+</script>
+<script type="module">
+  import { Buffer } from 'buffer/';
+  window.Buffer = Buffer;
+</script>
+</head>
+  <body class="font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
