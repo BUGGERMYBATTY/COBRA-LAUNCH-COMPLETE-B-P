@@ -1,0 +1,11 @@
+{
+  "name": "cobra-launch-api",
+  "version": "1.0.0",
+  "description": "Vercel serverless functions for Cobra Launch",
+  "type": "module",
+  "dependencies": {
+    "formidable": "^3.5.1",
+    "form-data": "^4.0.0",
+    "axios": "^1.6.0"
+  }
+}

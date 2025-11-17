@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd BLUE-PURPLE-COBRA-LAUNCH-BACKUP && npm install && npm run build",
+  "outputDirectory": "BLUE-PURPLE-COBRA-LAUNCH-BACKUP/dist",
+  "installCommand": "cd BLUE-PURPLE-COBRA-LAUNCH-BACKUP && npm install --legacy-peer-deps",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ]
+}
