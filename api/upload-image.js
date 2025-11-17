@@ -2,12 +2,10 @@
 import FormData from 'form-data';
 import axios from 'axios';
 
-// Vercel serverless functions have a 4.5MB limit for body size
+// Disable body parsing so we can manually parse multipart data
 export const config = {
     api: {
-        bodyParser: {
-            sizeLimit: '4.5mb',
-        },
+        bodyParser: false,
     },
 };
 
@@ -131,7 +129,14 @@ export default async function handler(req, res) {
     try {
         const { fields, file } = await parseMultipartForm(req);
 
+        console.log('Parsed form data:', {
+            hasFile: !!file,
+            fields: Object.keys(fields),
+            fileSize: file?.buffer?.length
+        });
+
         if (!file) {
+            console.error('No file in parsed data');
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
@@ -139,6 +144,7 @@ export default async function handler(req, res) {
         const tokenSymbol = fields.tokenSymbol;
 
         if (!tokenName || !tokenSymbol) {
+            console.error('Missing required fields:', { tokenName, tokenSymbol, allFields: fields });
             return res.status(400).json({ error: 'tokenName and tokenSymbol are required' });
         }
 
