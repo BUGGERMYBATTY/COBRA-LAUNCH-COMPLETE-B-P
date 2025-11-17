@@ -1,0 +1,74 @@
+====================================================================
+COBRA LAUNCH - VERCEL ENVIRONMENT VARIABLES SETUP
+====================================================================
+
+Copy these variables to your Vercel project:
+Vercel Dashboard → Your Project → Settings → Environment Variables
+
+--------------------------------------------------------------------
+REQUIRED VARIABLES (Fill in your actual values)
+--------------------------------------------------------------------
+
+PINATA_JWT=your_pinata_jwt_token_here
+
+PINATA_GATEWAY=https://yellow-peculiar-cephalopod-560.mypinata.cloud
+
+VITE_SOLANA_NETWORK=mainnet-beta
+
+VITE_TREASURY_ADDRESS=your_solana_wallet_address_here
+
+--------------------------------------------------------------------
+OPTIONAL VARIABLES
+--------------------------------------------------------------------
+
+VITE_SOLANA_RPC_ENDPOINT=
+
+--------------------------------------------------------------------
+⚠️ IMPORTANT: DO NOT ADD THESE TO VERCEL
+--------------------------------------------------------------------
+
+❌ VITE_BACKEND_API_URL (Only for local development)
+❌ BACKEND_PORT (Only for local development)
+
+====================================================================
+QUICK SETUP STEPS
+====================================================================
+
+1. Get your Pinata JWT:
+   → https://app.pinata.cloud/developers/api-keys
+   → Click "New Key"
+   → Enable "pinFileToIPFS" permission
+   → Copy the JWT token
+
+2. Get your Pinata Gateway:
+   → https://app.pinata.cloud/gateway
+   → Copy your gateway URL (e.g., https://xxx.mypinata.cloud)
+
+3. Choose network:
+   → devnet (for testing)
+   → mainnet-beta (for production)
+
+4. Set treasury address:
+   → Use your Solana wallet address (where fees go)
+   → Example: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+
+5. Add to Vercel:
+   → Go to Vercel project settings
+   → Environment Variables section
+   → Add each variable above
+   → Click "Redeploy"
+
+====================================================================
+VERCEL CLI IMPORT (Alternative Method)
+====================================================================
+
+If you have Vercel CLI installed, you can use this command:
+
+vercel env add PINATA_JWT
+vercel env add PINATA_GATEWAY
+vercel env add VITE_SOLANA_NETWORK
+vercel env add VITE_TREASURY_ADDRESS
+
+Then paste the values when prompted.
+
+====================================================================
