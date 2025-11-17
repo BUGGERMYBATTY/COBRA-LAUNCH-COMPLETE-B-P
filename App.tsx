@@ -272,75 +272,96 @@ const App: React.FC = () => {
   const isMainnet = networkName === 'MAINNET-BETA';
 
   return (
-    <div className="min-h-screen text-brand-text flex flex-col p-8 font-sans">
-      <header className="w-full flex justify-between items-center mb-4">
-        <img
-          src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeid5l5jhuqjgwhbrs7a4fe6ilgqh37t6nlvmsx6v5uflfl3hcnnvrm"
-          alt="Cobra Launch"
-          className="h-48"
-        />
-        <div className="flex items-center gap-4">
-          <div className={`text-sm font-semibold rounded-full px-4 py-1.5 ${
-            isMainnet
-              ? 'text-fuchsia-300 bg-fuchsia-900/50 border border-fuchsia-500'
-              : 'text-purple-300 bg-purple-900/50 border border-purple-500'
-          }`}>
-            {isMainnet ? 'Mainnet' : networkName}
+    <div className="min-h-screen text-brand-text flex flex-col p-8 font-sans bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900">
+      {/* Header Box */}
+      <header className="w-full mb-8">
+        <div className="bg-brand-surface-transparent backdrop-blur-sm p-6 rounded-2xl shadow-lg shadow-glow-purple border border-brand-border">
+          <div className="flex justify-between items-center">
+            <img
+              src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeid5l5jhuqjgwhbrs7a4fe6ilgqh37t6nlvmsx6v5uflfl3hcnnvrm"
+              alt="Cobra Launch"
+              className="h-32"
+            />
+            <div className="flex items-center gap-4">
+              <div className={`text-sm font-semibold rounded-full px-4 py-1.5 ${
+                isMainnet
+                  ? 'text-fuchsia-300 bg-fuchsia-900/50 border border-fuchsia-500'
+                  : 'text-purple-300 bg-purple-900/50 border border-purple-500'
+              }`}>
+                {isMainnet ? 'Mainnet' : networkName}
+              </div>
+              <WalletMultiButton />
+            </div>
           </div>
-          <WalletMultiButton />
         </div>
       </header>
+
       <main className="flex-grow flex items-center justify-center">
         {!wallet.connected ? (
           !isWalletModalVisible && (
-            <div className="text-center space-y-6">
-              <h1 className="text-4xl font-bold uppercase">Create a Solana Token</h1>
-              <p className="text-brand-text-secondary">No coding required. Launch your token in minutes.</p>
-              <p className="text-2xl font-bold uppercase tracking-wider">
-                <span className="text-neon-purple">CREATE </span>
-                <span style={{color: '#42d6d8'}}>LAUNCH </span>
-                <span className="text-neon-purple">STRIKE</span>
-              </p>
-              <div className="pt-4">
-                <WalletMultiButton>CONNECT WALLET TO GET STARTED</WalletMultiButton>
+            <div className="bg-brand-surface-transparent backdrop-blur-sm p-12 rounded-2xl shadow-2xl shadow-glow-purple border border-brand-border max-w-2xl w-full">
+              <div className="text-center space-y-6">
+                <h1 className="text-5xl font-bold uppercase bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                  Create a Solana Token
+                </h1>
+                <p className="text-brand-text-secondary text-lg">No coding required. Launch your token in minutes.</p>
+                <div className="py-4">
+                  <p className="text-3xl font-bold uppercase tracking-wider">
+                    <span className="text-neon-purple">CREATE </span>
+                    <span style={{color: '#42d6d8'}}>LAUNCH </span>
+                    <span className="text-neon-purple">STRIKE</span>
+                  </p>
+                </div>
+                <div className="pt-6">
+                  <WalletMultiButton>CONNECT WALLET TO GET STARTED</WalletMultiButton>
+                </div>
               </div>
             </div>
           )
         ) : (
-          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-purple border border-brand-border">
-            {view === 'form' && (
-              <>
-                <h1 className="text-3xl font-bold mb-2 text-center uppercase">Create a New Solana Token</h1>
-                <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
-                <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
-                  Note: Token Supply, Decimals, and Authority settings are fixed.
-                </p>
-                <TokenForm
-                  onSubmit={handleFormSubmit}
-                  isLoading={isLoading}
-                  isConfirmModalOpen={isConfirmModalOpen}
-                />
-                 {error && (
-                  <div className="mt-4 p-4 bg-red-900/50 border border-red-500 text-red-300 rounded-lg text-sm">
-                    <strong>Error:</strong> {error}
-                  </div>
+          <div className="w-full max-w-3xl">
+            {/* Main Creation Box */}
+            <div className="bg-gradient-to-br from-purple-900/30 via-gray-900/50 to-cyan-900/30 backdrop-blur-md p-1 rounded-3xl shadow-2xl shadow-glow-purple">
+              <div className="bg-gray-900/90 p-10 rounded-3xl border border-purple-500/30">
+                {view === 'form' && (
+                  <>
+                    <div className="text-center mb-8">
+                      <h1 className="text-4xl font-bold mb-3 uppercase bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                        Create a New Solana Token
+                      </h1>
+                      <p className="text-brand-text-secondary mb-2">Fill in the details below to mint your new token.</p>
+                      <p className="text-sm text-brand-text-secondary/70">
+                        Note: Token Supply, Decimals, and Authority settings are fixed.
+                      </p>
+                    </div>
+                    <TokenForm
+                      onSubmit={handleFormSubmit}
+                      isLoading={isLoading}
+                      isConfirmModalOpen={isConfirmModalOpen}
+                    />
+                     {error && (
+                      <div className="mt-6 p-4 bg-red-900/50 border border-red-500 text-red-300 rounded-xl text-sm shadow-lg">
+                        <strong>Error:</strong> {error}
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-            {view === 'result' && createdTokenInfo && (
-              <TokenResult
-                tokenInfo={createdTokenInfo}
-                onReset={handleReset}
-                onCreateLiquidity={handleCreateLiquidity}
-              />
-            )}
-            {view === 'liquidity' && createdTokenInfo && (
-              <CreateLiquidity
-                tokenInfo={createdTokenInfo}
-                onBack={handleBackFromLiquidity}
-                onSuccess={handleLiquiditySuccess}
-              />
-            )}
+                {view === 'result' && createdTokenInfo && (
+                  <TokenResult
+                    tokenInfo={createdTokenInfo}
+                    onReset={handleReset}
+                    onCreateLiquidity={handleCreateLiquidity}
+                  />
+                )}
+                {view === 'liquidity' && createdTokenInfo && (
+                  <CreateLiquidity
+                    tokenInfo={createdTokenInfo}
+                    onBack={handleBackFromLiquidity}
+                    onSuccess={handleLiquiditySuccess}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         )}
       </main>
@@ -350,7 +371,7 @@ const App: React.FC = () => {
           <div className="bg-brand-surface rounded-2xl shadow-2xl p-8 m-4 w-full max-w-lg relative border border-brand-accent/50">
             <h2 className="text-2xl font-bold mb-4 text-brand-text uppercase">Confirm Transaction</h2>
             <p className="text-brand-text-secondary mb-6">Please review the details below before proceeding.</p>
-            
+
             <div className="space-y-4 text-left bg-brand-bg-transparent p-4 rounded-lg border border-brand-border mb-6">
               <div>
                 <label className="text-xs font-mono text-brand-text-secondary">TOKEN NAME</label>
@@ -365,7 +386,7 @@ const App: React.FC = () => {
                 <p className="font-bold text-brand-accent">0.1 SOL</p>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-4">
               <button onClick={() => setIsConfirmModalOpen(false)} disabled={isLoading} className="py-2 px-4 border border-brand-border rounded-lg text-sm font-medium text-brand-text-secondary hover:border-brand-accent transition-colors disabled:opacity-50 uppercase">CANCEL</button>
               <button onClick={confirmAndCreateToken} disabled={isLoading} className="w-40 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 uppercase">
