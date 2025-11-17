@@ -5,7 +5,9 @@
 import type { TokenData } from '../types';
 
 // Get backend API URL from environment variables
-const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
+// On Vercel, API routes are on the same domain, so we use relative URLs (empty string)
+// For local dev with separate backend, use VITE_BACKEND_API_URL
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL || '';
 
 /**
  * Uploads an image file to IPFS via our secure backend API
