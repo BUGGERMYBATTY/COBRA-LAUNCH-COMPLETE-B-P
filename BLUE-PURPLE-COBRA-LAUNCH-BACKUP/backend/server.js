@@ -276,8 +276,8 @@ app.post('/api/create-liquidity', async (req, res) => {
             throw new Error('Treasury address not configured');
         }
 
-        // Create CPMM pool transaction
-        const { transaction, poolId, lpMint } = await createCpmmPoolTransaction({
+        // Create CPMM pool transaction using Raydium SDK v2
+        const result = await createCpmmPoolTransaction({
             tokenMint,
             baseAmount,
             quoteAmount,
@@ -286,29 +286,18 @@ app.post('/api/create-liquidity', async (req, res) => {
             connection
         });
 
-        // Get recent blockhash
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-        transaction.recentBlockhash = blockhash;
-        transaction.feePayer = new PublicKey(walletPublicKey);
-
-        // Serialize transaction
-        const serializedTransaction = transaction.serialize({
-            requireAllSignatures: false,
-            verifySignatures: false
-        }).toString('base64');
-
         console.log('Pool transaction created successfully');
-        console.log('Pool ID:', poolId.toString());
-        console.log('LP Mint:', lpMint.toString());
+        console.log('Pool ID:', result.poolId);
+        console.log('LP Mint:', result.lpMint);
 
         res.json({
             success: true,
-            transaction: serializedTransaction,
-            poolAddress: poolId.toString(),
-            lpMint: lpMint.toString(),
+            transaction: result.serializedTransaction,
+            poolAddress: result.poolId,
+            lpMint: result.lpMint,
             message: 'Pool transaction ready for signing',
-            blockhash,
-            lastValidBlockHeight
+            blockhash: result.blockhash,
+            lastValidBlockHeight: result.lastValidBlockHeight
         });
 
     } catch (error) {
