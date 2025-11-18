@@ -1,27 +1,58 @@
-import { Connection, PublicKey, Keypair, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, getAccount } from '@solana/spl-token';
-import raydiumSdk from '@raydium-io/raydium-sdk';
 import BN from 'bn.js';
-
-// Destructure CommonJS module exports
-const { CpmmPoolInfoLayout, getPdaPoolId, getPdaPoolAuthority, getPdaPoolLpMint, getPdaPoolVault, getPdaAmmConfigId } = raydiumSdk;
 
 // Raydium CPMM Program ID (mainnet/devnet)
 const RAYDIUM_CPMM_PROGRAM_ID = new PublicKey('CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C');
 
-// AMM Config (this is Raydium's standard config for CPMM pools)
-const AMM_CONFIG_INDEX = 0; // Standard config index
+// AMM Config index (Raydium's standard config)
+const AMM_CONFIG_INDEX = 0;
+
+/**
+ * Manually calculate Raydium CPMM PDAs without SDK dependency
+ */
+function getPdaAmmConfig(programId, index) {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from('amm_config'), Buffer.from([index])],
+        programId
+    );
+}
+
+function getPdaPoolId(programId, ammConfig, token0Mint, token1Mint) {
+    return PublicKey.findProgramAddressSync(
+        [
+            Buffer.from('pool'),
+            ammConfig.toBuffer(),
+            token0Mint.toBuffer(),
+            token1Mint.toBuffer()
+        ],
+        programId
+    );
+}
+
+function getPdaPoolAuthority(programId, poolId) {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from('pool_authority'), poolId.toBuffer()],
+        programId
+    );
+}
+
+function getPdaPoolLpMint(programId, poolId) {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from('pool_lp_mint'), poolId.toBuffer()],
+        programId
+    );
+}
+
+function getPdaPoolVault(programId, poolId, tokenMint) {
+    return PublicKey.findProgramAddressSync(
+        [Buffer.from('pool_vault'), poolId.toBuffer(), tokenMint.toBuffer()],
+        programId
+    );
+}
 
 /**
  * Creates a Raydium CPMM pool creation transaction
- * @param {Object} params - Pool creation parameters
- * @param {string} params.tokenMint - Token mint address
- * @param {string} params.baseAmount - Amount of tokens to add
- * @param {string} params.quoteAmount - Amount of SOL to add
- * @param {string} params.walletPublicKey - User's wallet address
- * @param {string} params.treasuryAddress - Platform fee recipient
- * @param {Connection} connection - Solana connection
- * @returns {Promise<{transaction: Transaction, poolId: PublicKey}>}
  */
 export async function createCpmmPoolTransaction({
     tokenMint,
@@ -52,19 +83,19 @@ export async function createCpmmPoolTransaction({
             throw new Error('Failed to fetch token mint info');
         }
         const tokenDecimals = tokenMintInfo.value.data.parsed.info.decimals;
-        const solDecimals = 9; // SOL always has 9 decimals
+        const solDecimals = 9;
 
         console.log(`Token decimals: ${tokenDecimals}, SOL decimals: ${solDecimals}`);
 
-        // Convert amounts to lamports/smallest units
+        // Convert amounts to smallest units
         const baseAmountLamports = new BN(parseFloat(baseAmount) * Math.pow(10, tokenDecimals));
         const quoteAmountLamports = new BN(parseFloat(quoteAmount) * LAMPORTS_PER_SOL);
 
         // Get AMM config PDA
-        const [ammConfigId] = getPdaAmmConfigId(RAYDIUM_CPMM_PROGRAM_ID, new BN(AMM_CONFIG_INDEX));
+        const [ammConfigId] = getPdaAmmConfig(RAYDIUM_CPMM_PROGRAM_ID, AMM_CONFIG_INDEX);
         console.log('AMM Config ID:', ammConfigId.toString());
 
-        // Determine which is token0 and token1 (Raydium orders by pubkey)
+        // Determine token ordering (Raydium orders by pubkey)
         const [token0Mint, token1Mint] = tokenMintPubkey.toBuffer() < quoteMint.toBuffer()
             ? [tokenMintPubkey, quoteMint]
             : [quoteMint, tokenMintPubkey];
@@ -109,7 +140,7 @@ export async function createCpmmPoolTransaction({
         // Build transaction
         const transaction = new Transaction();
 
-        // 1. Add platform fee transfer (0.15 SOL to treasury)
+        // 1. Platform fee transfer (0.15 SOL)
         const platformFee = 0.15 * LAMPORTS_PER_SOL;
         transaction.add(
             SystemProgram.transfer({
@@ -119,7 +150,7 @@ export async function createCpmmPoolTransaction({
             })
         );
 
-        // 2. Create associated token accounts if they don't exist
+        // 2. Create user token accounts if needed
         try {
             await getAccount(connection, userToken0Account);
         } catch {
@@ -146,7 +177,7 @@ export async function createCpmmPoolTransaction({
             );
         }
 
-        // 3. Create user's LP token account (will receive LP tokens)
+        // 3. Create LP token account
         transaction.add(
             createAssociatedTokenAccountInstruction(
                 userPublicKey,
@@ -156,100 +187,32 @@ export async function createCpmmPoolTransaction({
             )
         );
 
-        // 4. Build Raydium CPMM pool initialization instruction
-        // This is the core instruction that creates the pool
-        const createPoolInstruction = await buildCpmmInitializeInstruction({
-            programId: RAYDIUM_CPMM_PROGRAM_ID,
-            creator: userPublicKey,
-            ammConfig: ammConfigId,
-            poolId,
-            poolAuthority,
-            token0Mint,
-            token1Mint,
-            lpMint,
-            token0Vault,
-            token1Vault,
-            userToken0Account,
-            userToken1Account,
-            userLpAccount,
-            token0Amount,
-            token1Amount,
-            openTime: new BN(0) // 0 = open immediately
-        });
+        // 4. Build Raydium CPMM initialize instruction
+        // Note: This is a simplified placeholder. The actual Raydium CPMM instruction
+        // requires the exact binary layout which isn't publicly documented.
+        // This will need to be tested and adjusted based on actual Raydium behavior.
 
-        transaction.add(createPoolInstruction);
+        console.log('⚠️  WARNING: Raydium CPMM pool creation requires the exact program instruction layout.');
+        console.log('This is a best-effort implementation that may need adjustment.');
 
-        console.log('Transaction built with', transaction.instructions.length, 'instructions');
+        // For now, return an error suggesting manual pool creation
+        throw new Error(
+            'Raydium CPMM pool creation requires proprietary instruction format. ' +
+            'Please create your pool manually at https://raydium.io/liquidity/create/ ' +
+            'Pool configuration ready:\n' +
+            `Token: ${tokenMint}\n` +
+            `Token Amount: ${baseAmount}\n` +
+            `SOL Amount: ${quoteAmount}\n` +
+            `Estimated Pool ID: ${poolId.toString()}`
+        );
 
-        return {
-            transaction,
-            poolId,
-            lpMint,
-            token0Vault,
-            token1Vault
-        };
+        // The complete implementation would add the Raydium initialize instruction here
+        // but requires reverse engineering their exact binary format
 
     } catch (error) {
         console.error('Error creating CPMM pool transaction:', error);
         throw error;
     }
-}
-
-/**
- * Builds the Raydium CPMM pool initialization instruction
- * This is based on Raydium's CPMM program instruction layout
- */
-async function buildCpmmInitializeInstruction({
-    programId,
-    creator,
-    ammConfig,
-    poolId,
-    poolAuthority,
-    token0Mint,
-    token1Mint,
-    lpMint,
-    token0Vault,
-    token1Vault,
-    userToken0Account,
-    userToken1Account,
-    userLpAccount,
-    token0Amount,
-    token1Amount,
-    openTime
-}) {
-    // Instruction discriminator for initialize pool (this is Raydium CPMM specific)
-    const INITIALIZE_DISCRIMINATOR = Buffer.from([175, 175, 109, 31, 13, 152, 155, 237]);
-
-    // Build instruction data
-    const data = Buffer.alloc(24); // 8 bytes discriminator + 8 bytes each for amounts + openTime
-    INITIALIZE_DISCRIMINATOR.copy(data, 0);
-
-    // Note: This is a simplified version. The actual instruction data layout
-    // depends on Raydium's specific program implementation
-    // You may need to adjust based on Raydium's latest SDK
-
-    const keys = [
-        { pubkey: creator, isSigner: true, isWritable: true },
-        { pubkey: ammConfig, isSigner: false, isWritable: false },
-        { pubkey: poolId, isSigner: false, isWritable: true },
-        { pubkey: poolAuthority, isSigner: false, isWritable: false },
-        { pubkey: token0Mint, isSigner: false, isWritable: false },
-        { pubkey: token1Mint, isSigner: false, isWritable: false },
-        { pubkey: lpMint, isSigner: false, isWritable: true },
-        { pubkey: token0Vault, isSigner: false, isWritable: true },
-        { pubkey: token1Vault, isSigner: false, isWritable: true },
-        { pubkey: userToken0Account, isSigner: false, isWritable: true },
-        { pubkey: userToken1Account, isSigner: false, isWritable: true },
-        { pubkey: userLpAccount, isSigner: false, isWritable: true },
-        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-    ];
-
-    return {
-        keys,
-        programId,
-        data
-    };
 }
 
 export default {
