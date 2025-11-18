@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ConnectWalletButton } from './ConnectWalletButton';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -48,7 +48,7 @@ export const Header: React.FC = () => {
 
           {/* Wallet Button */}
           <div className="flex items-center">
-            <ConnectWalletButton />
+            <WalletMultiButton />
           </div>
         </div>
 
