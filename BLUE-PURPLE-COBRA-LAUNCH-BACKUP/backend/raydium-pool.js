@@ -1,5 +1,5 @@
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { Raydium, ApiV3PoolInfoStandardItem } from '@raydium-io/raydium-sdk-v2';
+import { Raydium } from '@raydium-io/raydium-sdk-v2';
 import BN from 'bn.js';
 import Decimal from 'decimal.js';
 
@@ -192,7 +192,7 @@ export async function depositLiquidityTransaction({
             throw new Error('Pool not found');
         }
 
-        const pool = poolInfo[0] as ApiV3PoolInfoStandardItem;
+        const pool = poolInfo[0]; // ApiV3PoolInfoStandardItem type
 
         // Build deposit transaction
         const { execute, extInfo, transactions } = await raydium.cpmm.deposit({
