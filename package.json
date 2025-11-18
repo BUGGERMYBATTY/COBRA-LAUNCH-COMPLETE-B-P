@@ -23,6 +23,9 @@
     "@solana/web3.js": "^1.91.4",
     "@solana/spl-token": "^0.4.6",
     "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
+    "@raydium-io/raydium-sdk": "^1.3.1-beta.58",
+    "decimal.js": "^10.4.3",
+    "bn.js": "^5.2.1",
     "buffer": "^6.0.3"
   },
   "devDependencies": {
