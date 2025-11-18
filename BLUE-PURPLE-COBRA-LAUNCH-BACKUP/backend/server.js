@@ -33,12 +33,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Security: Ensure JWT is configured
-const PINATA_JWT = process.env.VITE_PINATA_JWT;
-const DEDICATED_GATEWAY = process.env.VITE_PINATA_GATEWAY || "https://yellow-peculiar-cephalopod-560.mypinata.cloud";
+// Security: Ensure JWT is configured (backend-only variables, NOT exposed to frontend)
+const PINATA_JWT = process.env.PINATA_JWT;
+const DEDICATED_GATEWAY = process.env.PINATA_GATEWAY || "https://yellow-peculiar-cephalopod-560.mypinata.cloud";
 
 if (!PINATA_JWT) {
-    console.error('FATAL ERROR: VITE_PINATA_JWT is not configured in environment variables');
+    console.error('FATAL ERROR: PINATA_JWT is not configured in environment variables');
     process.exit(1);
 }
 
@@ -159,17 +159,21 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
 // Metadata upload endpoint
 app.post('/api/upload-metadata', async (req, res) => {
     try {
-        const { name, symbol, description, image } = req.body;
+        const { name, symbol, description, image, website, twitter, telegram } = req.body;
 
-        if (!name || !symbol || !description || !image) {
-            return res.status(400).json({ error: 'name, symbol, description, and image are required' });
+        // Only name, symbol, and image are required
+        if (!name || !symbol || !image) {
+            return res.status(400).json({ error: 'name, symbol, and image are required' });
         }
 
         const metadataJson = {
             name,
             symbol,
-            description,
             image,
+            ...(description && { description }),
+            ...(website && { website }),
+            ...(twitter && { twitter }),
+            ...(telegram && { telegram }),
         };
 
         const uniqueFileName = `${sanitizeForFilename(symbol)}-metadata.json`;
