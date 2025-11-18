@@ -5,6 +5,10 @@ export interface TokenData {
   description: string;
   image: string; // This will now be the IPFS URL
   treasuryAddress: string;
+  // Optional social/web links
+  website?: string;
+  twitter?: string;
+  telegram?: string;
 }
 
 export interface CreatedTokenInfo extends TokenData {

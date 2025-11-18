@@ -52,6 +52,10 @@ async function handleMetadataUpload(metadata: TokenData): Promise<string> {
             symbol: metadata.symbol,
             description: metadata.description,
             image: metadata.image,
+            // Include optional fields if provided
+            ...(metadata.website && { website: metadata.website }),
+            ...(metadata.twitter && { twitter: metadata.twitter }),
+            ...(metadata.telegram && { telegram: metadata.telegram }),
         }),
     });
 

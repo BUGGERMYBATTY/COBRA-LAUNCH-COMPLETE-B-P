@@ -19,6 +19,11 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
 
+  // Optional social/web links
+  const [website, setWebsite] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [telegram, setTelegram] = useState('');
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -59,7 +64,17 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
     if (isFormValid && image) {
       // Use configured treasury address from environment
       const treasuryAddress = import.meta.env.VITE_TREASURY_ADDRESS || '';
-      onSubmit({ name, symbol, description, image, treasuryAddress });
+      onSubmit({
+        name,
+        symbol,
+        description,
+        image,
+        treasuryAddress,
+        // Include optional fields if provided
+        ...(website && { website }),
+        ...(twitter && { twitter }),
+        ...(telegram && { telegram })
+      });
     }
   };
 
@@ -113,6 +128,56 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
       </div>
 
       <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
+
+      {/* Social & Web Links Section */}
+      <div className="space-y-4 rounded-lg bg-purple-900/20 p-4 border border-purple-500/30">
+        <h3 className="font-semibold text-brand-text uppercase text-sm">Social & Web Links (Optional)</h3>
+        <p className="text-xs text-brand-text-secondary">Add links to help your community find you</p>
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="website" className="block text-sm font-medium text-brand-text-secondary mb-2">
+              🌐 Website
+            </label>
+            <input
+              type="url"
+              id="website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://yourproject.com"
+              className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="twitter" className="block text-sm font-medium text-brand-text-secondary mb-2">
+              𝕏 Twitter / X
+            </label>
+            <input
+              type="text"
+              id="twitter"
+              value={twitter}
+              onChange={(e) => setTwitter(e.target.value)}
+              placeholder="https://twitter.com/yourproject or @yourproject"
+              className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="telegram" className="block text-sm font-medium text-brand-text-secondary mb-2">
+              ✈️ Telegram
+            </label>
+            <input
+              type="text"
+              id="telegram"
+              value={telegram}
+              onChange={(e) => setTelegram(e.target.value)}
+              placeholder="https://t.me/yourproject or @yourproject"
+              className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200"
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

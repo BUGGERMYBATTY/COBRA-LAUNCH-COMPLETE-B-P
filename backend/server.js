@@ -164,7 +164,7 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
 // Metadata upload endpoint
 app.post('/api/upload-metadata', async (req, res) => {
     try {
-        const { name, symbol, description, image } = req.body;
+        const { name, symbol, description, image, website, twitter, telegram } = req.body;
 
         if (!name || !symbol || !description || !image) {
             return res.status(400).json({ error: 'name, symbol, description, and image are required' });
@@ -175,6 +175,10 @@ app.post('/api/upload-metadata', async (req, res) => {
             symbol,
             description,
             image,
+            // Include optional social/web links if provided
+            ...(website && { website }),
+            ...(twitter && { twitter }),
+            ...(telegram && { telegram }),
         };
 
         const uniqueFileName = `${sanitizeForFilename(symbol)}-metadata.json`;
