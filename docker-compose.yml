@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  cobra-launch:
+    build: .
+    container_name: cobra-launch-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      # Backend Port
+      - BACKEND_PORT=3001
+
+      # Pinata Configuration (set these values in .env file)
+      - VITE_PINATA_JWT=${VITE_PINATA_JWT}
+      - VITE_PINATA_GATEWAY=${VITE_PINATA_GATEWAY}
+
+      # Solana Configuration
+      - VITE_SOLANA_NETWORK=${VITE_SOLANA_NETWORK}
+      - VITE_TREASURY_ADDRESS=${VITE_TREASURY_ADDRESS}
+      - VITE_SOLANA_RPC_ENDPOINT=${VITE_SOLANA_RPC_ENDPOINT}
+
+      # Backend API URL (should be your domain)
+      - VITE_BACKEND_API_URL=${VITE_BACKEND_API_URL}
+
+    env_file:
+      - .env
+
+    volumes:
+      # Mount logs directory (optional)
+      - ./logs:/app/logs
+
+    networks:
+      - cobra-network
+
+networks:
+  cobra-network:
+    driver: bridge

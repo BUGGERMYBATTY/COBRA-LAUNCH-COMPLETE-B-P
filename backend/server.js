@@ -25,13 +25,18 @@ const corsOptions = {
         'https://randygarsh.com',
         'https://www.randygarsh.com',
         'http://localhost:5173',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'http://localhost:3001'
     ],
     credentials: true,
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Serve static frontend files (for production VPS deployment)
+const frontendPath = join(__dirname, '..', 'frontend');
+app.use(express.static(frontendPath));
 
 // Security: Ensure JWT is configured
 const PINATA_JWT = process.env.VITE_PINATA_JWT;
@@ -325,9 +330,15 @@ app.post('/api/create-liquidity', async (req, res) => {
     }
 });
 
+// Catch-all route to serve index.html for client-side routing
+app.get('*', (req, res) => {
+    res.sendFile(join(frontendPath, 'index.html'));
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Cobra Launch Backend API running on port ${PORT}`);
     console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔒 Pinata JWT: ${PINATA_JWT ? 'Configured ✓' : 'Missing ✗'}`);
+    console.log(`📁 Serving frontend from: ${frontendPath}`);
 });
