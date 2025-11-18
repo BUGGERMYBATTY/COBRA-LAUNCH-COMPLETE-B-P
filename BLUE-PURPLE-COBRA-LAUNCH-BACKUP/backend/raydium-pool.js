@@ -1,7 +1,10 @@
 import { Connection, PublicKey, Keypair, SystemProgram, Transaction, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, getAccount } from '@solana/spl-token';
-import { CpmmPoolInfoLayout, getPdaPoolId, getPdaPoolAuthority, getPdaPoolLpMint, getPdaPoolVault, getPdaAmmConfigId } from '@raydium-io/raydium-sdk';
+import raydiumSdk from '@raydium-io/raydium-sdk';
 import BN from 'bn.js';
+
+// Destructure CommonJS module exports
+const { CpmmPoolInfoLayout, getPdaPoolId, getPdaPoolAuthority, getPdaPoolLpMint, getPdaPoolVault, getPdaAmmConfigId } = raydiumSdk;
 
 // Raydium CPMM Program ID (mainnet/devnet)
 const RAYDIUM_CPMM_PROGRAM_ID = new PublicKey('CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C');
