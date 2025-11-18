@@ -6,6 +6,8 @@ import FormData from 'form-data';
 import axios from 'axios';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { createCpmmPoolTransaction } from './raydium-pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -264,61 +266,50 @@ app.post('/api/create-liquidity', async (req, res) => {
         console.log(`Amounts - Base: ${baseAmount} ${tokenSymbol || 'tokens'}, Quote: ${quoteAmount} SOL`);
         console.log(`Wallet: ${walletPublicKey}`);
 
-        // IMPORTANT: This is a placeholder implementation
-        // The actual Raydium CPMM SDK integration will be added after installing dependencies
-        // For now, we return an error directing users to manual pool creation
+        // Get Solana RPC connection
+        const rpcUrl = process.env.VITE_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+        const connection = new Connection(rpcUrl, 'confirmed');
 
-        return res.status(501).json({
-            success: false,
-            error: 'Liquidity pool creation is not yet fully implemented. Please create your pool manually at https://raydium.io/liquidity/create/',
-            message: 'Backend integration with Raydium SDK pending. Use manual pool creation for now.',
-            details: {
-                tokenMint,
-                baseAmount,
-                quoteAmount,
-                estimatedFees: {
-                    platformFee: '0.15 SOL',
-                    raydiumFee: '0.17 SOL',
-                    totalFees: '0.32 SOL'
-                }
-            }
-        });
+        // Get treasury address for platform fee
+        const treasuryAddress = process.env.VITE_TREASURY_ADDRESS;
+        if (!treasuryAddress) {
+            throw new Error('Treasury address not configured');
+        }
 
-        // TODO: Implement Raydium CPMM SDK integration
-        // 1. Import Raydium SDK
-        // 2. Initialize CPMM client
-        // 3. Create pool transaction
-        // 4. Add platform fee transfer (0.15 SOL to treasury)
-        // 5. Serialize transaction
-        // 6. Return serialized transaction + pool address
-
-        /*
-        // Example structure for when SDK is integrated:
-        const transaction = await createCPMMPool({
+        // Create CPMM pool transaction
+        const { transaction, poolId, lpMint } = await createCpmmPoolTransaction({
             tokenMint,
             baseAmount,
             quoteAmount,
-            walletPublicKey
+            walletPublicKey,
+            treasuryAddress,
+            connection
         });
 
-        // Add platform fee
-        transaction.add(
-            SystemProgram.transfer({
-                fromPubkey: new PublicKey(walletPublicKey),
-                toPubkey: new PublicKey(process.env.VITE_TREASURY_ADDRESS),
-                lamports: 0.15 * LAMPORTS_PER_SOL
-            })
-        );
+        // Get recent blockhash
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = new PublicKey(walletPublicKey);
 
-        const serializedTransaction = transaction.serialize().toString('base64');
+        // Serialize transaction
+        const serializedTransaction = transaction.serialize({
+            requireAllSignatures: false,
+            verifySignatures: false
+        }).toString('base64');
+
+        console.log('Pool transaction created successfully');
+        console.log('Pool ID:', poolId.toString());
+        console.log('LP Mint:', lpMint.toString());
 
         res.json({
             success: true,
             transaction: serializedTransaction,
-            poolAddress: 'POOL_ADDRESS_HERE',
-            message: 'Pool transaction ready for signing'
+            poolAddress: poolId.toString(),
+            lpMint: lpMint.toString(),
+            message: 'Pool transaction ready for signing',
+            blockhash,
+            lastValidBlockHeight
         });
-        */
 
     } catch (error) {
         console.error('Liquidity pool creation error:', error);
