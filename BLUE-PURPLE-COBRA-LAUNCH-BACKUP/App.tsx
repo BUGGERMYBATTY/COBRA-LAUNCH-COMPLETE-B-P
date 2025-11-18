@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { useWallet, useWalletModal } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
@@ -10,7 +10,6 @@ import { BurnPage } from './pages/BurnPage';
 
 const App: React.FC = () => {
   const wallet = useWallet();
-  const { visible: isWalletModalVisible } = useWalletModal();
 
   // Get network name from environment variable for display
   const networkName = (import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta').toUpperCase();
@@ -24,8 +23,7 @@ const App: React.FC = () => {
       {/* Main content area */}
       {!wallet.connected ? (
         // Wallet not connected - show landing page
-        !isWalletModalVisible && (
-          <div className="flex-grow flex flex-col p-8">
+        <div className="flex-grow flex flex-col p-8">
             <header className="w-full flex justify-between items-center mb-4">
               <img
                 src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeid5l5jhuqjgwhbrs7a4fe6ilgqh37t6nlvmsx6v5uflfl3hcnnvrm"
@@ -57,8 +55,7 @@ const App: React.FC = () => {
                 </div>
               </div>
             </main>
-          </div>
-        )
+        </div>
       ) : (
         // Wallet connected - show routes
         <Routes>
