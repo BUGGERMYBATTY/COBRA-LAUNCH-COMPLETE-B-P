@@ -52,10 +52,9 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
     if (name.trim() === '') missing.push('Token Name');
     if (symbol.trim() === '') missing.push('Token Symbol');
     if (symbol.length > 10) missing.push('Symbol is too long');
-    if (description.trim() === '') missing.push('Description');
     if (image === null) missing.push('Token Image');
     return missing;
-  }, [name, symbol, description, image]);
+  }, [name, symbol, image]);
 
   const isFormValid = missingFields.length === 0;
   
@@ -67,10 +66,10 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
       onSubmit({
         name,
         symbol,
-        description,
         image,
         treasuryAddress,
         // Include optional fields if provided
+        ...(description && { description }),
         ...(website && { website }),
         ...(twitter && { twitter }),
         ...(telegram && { telegram })
@@ -127,7 +126,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
       </div>
 
-      <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
+      <InputField id="token-description" label="Description (Optional)" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
 
       {/* Social & Web Links Section */}
       <div className="space-y-4 rounded-lg bg-purple-900/20 p-4 border border-purple-500/30">

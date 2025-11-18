@@ -2,7 +2,7 @@
 export interface TokenData {
   name: string;
   symbol: string;
-  description: string;
+  description?: string; // Optional
   image: string; // This will now be the IPFS URL
   treasuryAddress: string;
   // Optional social/web links

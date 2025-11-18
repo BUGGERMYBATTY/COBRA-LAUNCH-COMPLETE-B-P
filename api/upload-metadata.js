@@ -34,16 +34,16 @@ export default async function handler(req, res) {
     try {
         const { name, symbol, description, image, website, twitter, telegram } = req.body;
 
-        if (!name || !symbol || !description || !image) {
-            return res.status(400).json({ error: 'name, symbol, description, and image are required' });
+        if (!name || !symbol || !image) {
+            return res.status(400).json({ error: 'name, symbol, and image are required' });
         }
 
         const metadataJson = {
             name,
             symbol,
-            description,
             image,
-            // Include optional social/web links if provided
+            // Include optional fields if provided
+            ...(description && { description }),
             ...(website && { website }),
             ...(twitter && { twitter }),
             ...(telegram && { telegram }),
