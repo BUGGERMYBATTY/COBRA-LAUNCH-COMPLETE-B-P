@@ -1,10 +1,6 @@
 import React, { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import {
-    PhantomWalletAdapter,
-    SolflareWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl, Connection } from '@solana/web3.js';
 
@@ -30,13 +26,10 @@ export const WalletContextProvider: FC<{ children: ReactNode }> = ({ children })
         return customEndpoint || clusterApiUrl(network);
     }, [network]);
 
-    const wallets = useMemo(
-        () => [
-            new PhantomWalletAdapter(),
-            new SolflareWalletAdapter(),
-        ],
-        [network]
-    );
+    // Modern wallets (Phantom, Solflare, etc.) auto-register via Wallet Standard
+    // Using legacy adapters causes double-registration and connection issues
+    // Empty array lets wallets register themselves without conflicts
+    const wallets = useMemo(() => [], []);
 
     return (
         <ConnectionProvider endpoint={endpoint}>
