@@ -2,6 +2,7 @@ import React, { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
+    PhantomWalletAdapter,
     SolflareWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -29,10 +30,11 @@ export const WalletContextProvider: FC<{ children: ReactNode }> = ({ children })
         return customEndpoint || clusterApiUrl(network);
     }, [network]);
 
-    // Phantom auto-registers via Wallet Standard (no adapter needed)
-    // Keep Solflare adapter since it works fine
+    // Both wallets use adapters for button functionality
+    // Double-registration warnings can be ignored - Solflare works fine with them
     const wallets = useMemo(
         () => [
+            new PhantomWalletAdapter(),
             new SolflareWalletAdapter(),
         ],
         [network]
