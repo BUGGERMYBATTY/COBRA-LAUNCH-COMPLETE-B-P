@@ -20,7 +20,7 @@ export const WalletContextProvider: FC<{ children: ReactNode }> = ({ children })
 
     // Use custom RPC endpoint if provided, otherwise use default Solana RPC
     const endpoint = useMemo(() => {
-        const customEndpoint = import.meta.env.VITE_SOLANA_RPC_ENDPOINT;
+        const customEndpoint = import.meta.env.VITE_SOLANA_RPC_URL || import.meta.env.VITE_SOLANA_RPC_ENDPOINT;
 
         // For mainnet, use a reliable public RPC endpoint
         if (!customEndpoint && network === WalletAdapterNetwork.Mainnet) {
